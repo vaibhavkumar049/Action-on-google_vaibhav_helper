@@ -1,10 +1,12 @@
 'use strict'
 
-const {dialogflow, List ,Image}=require('actions-on-google');
+const {dialogflow, List ,Image}= require('actions-on-google');
 const functions = require('firebase-functions');
-//const d=require('date-and-time');
+const admin=require('firebase-admin');
+admin.initializeApp();
+const db=admin.firestore(); 
+
 const app=dialogflow({debug : true });
-//let date = new Date();
 
 app.intent('what is',(conv,{menu})=>{
   console.log(menu);
@@ -89,5 +91,43 @@ app.intent('action.intent.OPTION',(conv,params,option)=>{
     response=selected_item_response[option];
   }
   conv.close(response);
+});
+
+
+
+const days =["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+app.intent('what_is', (conv,{routine,date}) => {
+  
+  // const d = new Date();
+  // console.log(d);
+  // const minutesSinceMidnight = d.getHours() * 60 + d.getMinutes() + 330;
+  // const day = d.getDay();
+
+  // minutesSinceMidnight < 540
+  //     ? conv.ask("College has not started yet")
+  //     : minutesSinceMidnight < 705
+  //         ? conv.ask(`The number of period going on is ${Math.floor((minutesSinceMidnight - 540) / 55)}`)
+  //         : minutesSinceMidnight < 745
+  //             ? conv.ask("Enjoy the break")
+  //             : minutesSinceMidnight < 1075
+  //                 ? conv.ask(`The number of period going on is ${4 + Math.floor((minutesSinceMidnight - 745) / 55)}`)
+  //                 : conv.ask(`College is over`);
+
+  // console.log(`d: ${d}, minutesSinceMidnight ${minutesSinceMidnight}, this is a ${days[d.getDay()]}`);
+  // conv.close(`Today is a ${days[day]}, ${minutesSinceMidnight} have elapsed since last midnight `);
+
+  const collectionRef=db.collection('routine');
+const termRef = collectionRef.doc('cse-c-5'); 
+return termRef.get()
+.then((snapshot) => {
+  const {Mon,Tue,Wed,Thu,Fri} = snapshot.data();
+  return conv.ask(`Here you go, ${Mon[1].type}, ${Mon[1].location}.  
+    What else do you want to know?`);
+}).catch((e) => {
+  console.log('error:', e);
+  conv.close('Sorry, try again and tell me another rotunitne.');
+});
+
 });
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest(app);
