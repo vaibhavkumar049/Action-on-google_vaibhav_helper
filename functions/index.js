@@ -8,7 +8,7 @@ const functions = require('firebase-functions');
  const db=admin.firestore(); 
 
 const app=dialogflow({debug : true ,
-                    clientId : "332867731471-0gh7c35n01bnj2b3dhsmnkpkaadnjncl.apps.googleusercontent.com"  
+                    clientId : "hidden docs"  
                     });
 app.intent('Start Signin', conv => {
   conv.ask(`siging you in`);
